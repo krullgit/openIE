@@ -15,8 +15,8 @@ object IV_extraction {
   def getExtractions(filename: String):List[List[String]] = {
 
     val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
-    client.execute { deleteIndex("amazon_extractions")}
-    client.execute { createIndex("amazon_extractions") mappings (
+    client.execute { deleteIndex("amazon_extractions_"+filename)}
+    client.execute { createIndex("amazon_extractions_"+filename) mappings (
       mapping("doc") as (
         keywordField("pattern"),
         keywordField("extractions")
@@ -34,18 +34,18 @@ object IV_extraction {
 
     // this value lookes like: List((PRP,I), (VBP,like), (PRP,it), (.,.))
     println("listOfListsOfTuplesWithWordAndPOS")
-    val listOfListsOfTuplesWithWordAndPOS: List[List[(String, String)]] = text3.map(x => x.split("\\s").toList.map(x => {
+    val listOfListsOfTuplesWithWordAndPOS: Vector[List[(String, String)]] = text3.map(x => x.split("\\s").toList.map(x => {
       val y = x.drop(1).dropRight(1).split("\\,")
       if (y.size == 2) {
         (y(0), y(1))
       } else {
         ("", "")
       }
-    }))
+    })).toVector
 
     // this value lookes like: List(List(List(Nautica makes quality products.), List(Nautica,  makes,  quality products)), ....
     println("parsedExtractions")
-    val parsedExtractions = text1.map(_.split("\n")).map(_.toList).map(x => x.map(x => {
+    val parsedExtractions: Vector[List[List[String]]] = text1.map(_.split("\n")).map(_.toList).map(x => x.map(x => {
       val indexFirst = x.indexOf("(")
       val indexLast = x.lastIndexOf(")")
       if (indexFirst == -1 || indexLast == 1) {
@@ -53,7 +53,7 @@ object IV_extraction {
       } else {
         x.drop(indexFirst + 1).dropRight(x.size - indexLast).split(";").toList.map(x => x.trim)
       }
-    }))
+    })).toVector
 
     println("rulesAll")
     val rulesAll = List.newBuilder[List[String]]
@@ -176,7 +176,7 @@ object IV_extraction {
       if(rules.result().size>1){
         val extractions = rules.result().tail.mkString(",")
         client.execute {
-          indexInto("amazon_extractions" / "doc") fields (
+          indexInto(("amazon_extractions_"+filename) / "doc") fields (
             "pattern" -> rules.result().head,
             "extractions" -> extractions
           )
@@ -231,6 +231,7 @@ object IV_extraction {
 
   // MAIN
   def main(args: Array[String]): Unit = {
+    //val rulesAll = getExtractions("reviews10000")
     val rulesAll = getExtractions("reviews24740")
     //indexExtractions(rulesAll)
 

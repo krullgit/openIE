@@ -27,10 +27,6 @@ object V_testExtract {
     implicit val timeout = Duration(20, "seconds") // is the timeout for the SearchIterator.hits method
     val listBuilder = List.newBuilder[String]
 
-    val dewf = client.show {
-      search("amazon_reviews_metadata" / "doc").keepAlive("1m").size(numberOfProducts) query fuzzyQuery("categories", category).fuzziness("1")
-    }
-    println(dewf)
     val resp = client.execute {
       search("amazon_reviews_metadata" / "doc").keepAlive("1m").size(numberOfProducts) query fuzzyQuery("categories", category).fuzziness("1")
     }.await()
@@ -105,7 +101,7 @@ object V_testExtract {
   // get a list of annotated sentences
   ////////////
 
-  def annotatePos(filename:List[String]):List[List[(String, String)]] = {
+  def annotatePos(filename:Vector[String]):Vector[List[(String, String)]] = {
     val props: Properties = new Properties() // set properties for annotator
     props.put("annotators", "tokenize, ssplit,pos") // set properties
 
@@ -130,7 +126,7 @@ object V_testExtract {
   /////////
   // test extractions
   /////////
-  def testExtraction(): Unit = {
+  def testExtraction(filename:String): Unit = {
 
     val props: Properties = new Properties() // set properties for annotator
     props.put("annotators", "tokenize, ssplit,pos") // set properties
@@ -143,23 +139,21 @@ object V_testExtract {
     println("listOfProductsReviews")
     val listOfProductsReviews: String = getAmazonReviewsAsList(numberOfReviews,listOfProductsAsins)
     println("listOfProductsReviewsSsplited")
-    val listOfProductsReviewsSsplited: List[String] = ssplit(listOfProductsReviews)
+    val listOfProductsReviewsSsplited: Vector[String] = ssplit(listOfProductsReviews).toVector
     println("listOfProductsReviewsPOSTagged")
-    val listOfProductsReviewsPOSTagged: Seq[List[(String, String)]] = annotatePos(listOfProductsReviewsSsplited)
+    val listOfProductsReviewsPOSTagged: Vector[List[(String, String)]] = annotatePos(listOfProductsReviewsSsplited).toVector
     println("listOfProductsReviewsPOSTaggedToken")
-    val listOfProductsReviewsPOSTaggedToken: Seq[List[String]] = listOfProductsReviewsPOSTagged.map(x => {for(i <-x)yield {i._2}})
+    val listOfProductsReviewsPOSTaggedToken: Vector[List[String]] = listOfProductsReviewsPOSTagged.map(x => {for(i <-x)yield {i._2}}).toVector
     println("listOfProductsReviewsPOSTaggedPOS")
-    val listOfProductsReviewsPOSTaggedPOS: Seq[List[String]] = listOfProductsReviewsPOSTagged.map(x => {for(i <-x)yield {i._1}})
+    val listOfProductsReviewsPOSTaggedPOS: Vector[List[String]] = listOfProductsReviewsPOSTagged.map(x => {for(i <-x)yield {i._1}}).toVector
     println("EXTRACT :)")
 
-    //listOfProductsReviewsPOSTaggedPOS.foreach(println(_))
     val matchNoMatch: immutable.Seq[Int] = for(sentenceNumber <- listOfProductsReviewsSsplited.indices)yield{
-
+      println(sentenceNumber)
       val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
-      //println(listOfProductsReviewsPOSTaggedPOS(sentenceNumber))
       // {"version":true,"query":{"term":{"pattern":{"value":"NN VBD RB IN JJ CC JJ IN VBD VBN ."}}}}
       val resp = client.execute {
-        search("amazon_extractions" / "doc") query termQuery("pattern", listOfProductsReviewsPOSTaggedPOS(sentenceNumber).mkString(" "))
+        search(("amazon_extractions_"+filename) / "doc") query termQuery("pattern", listOfProductsReviewsPOSTaggedPOS(sentenceNumber).mkString(" "))
       }.await
       var matched = ""
       resp match {
@@ -167,17 +161,16 @@ object V_testExtract {
         case Right(results) => results.result.hits.hits.foreach(x => {matched += x.sourceField("extractions").toString;matched+=","})
       }
       client.close()
-      //println("matched: "+matched)
       if(!matched.isEmpty){
-        println("\n/\n")
+
         val rules: Array[Array[Array[String]]] = matched.split(",").distinct.map(x => x.split(";").map(x=>x.split(" ")))
-        //val extractions = List.newBuilder[String]
 
         var extractions = ""
         rules.foreach(x=>{x.foreach(partOfTriple=>{partOfTriple.foreach(index=>{extractions += listOfProductsReviewsPOSTaggedToken(sentenceNumber)(index.toInt)+" "});extractions=extractions.trim;extractions+=";"});extractions=extractions.dropRight(1);extractions +=","})
 
+        /*println("\n/\n")
         println("Sentence: "+listOfProductsReviewsSsplited(sentenceNumber))
-        println("Extractions: "+extractions.dropRight(1))
+        println("Extractions: "+extractions.dropRight(1))*/
         1
       }else{
         0
@@ -232,6 +225,6 @@ object V_testExtract {
 
   // MAIN
   def main(args: Array[String]): Unit = {
-    testExtraction()
+    testExtraction("reviews10000")
   }
 }
