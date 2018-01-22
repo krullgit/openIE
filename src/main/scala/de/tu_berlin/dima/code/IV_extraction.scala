@@ -202,9 +202,9 @@ object IV_extraction {
     client.close()
     return rulesAll.result()
   }
-  /////////
+  //////////
   // Index extractions
-  /////////
+  //////////
   def indexExtractions(rulesAll: List[List[String]]): Unit = {
     println("indexExtractions READY")
     val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
