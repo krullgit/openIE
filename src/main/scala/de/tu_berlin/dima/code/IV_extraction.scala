@@ -13,7 +13,7 @@ object IV_extraction {
   // METHODS
 
   def getExtractions(filename: String):List[List[String]] = {
-
+    /*
     val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
     client.execute { deleteIndex("amazon_extractions_"+filename)}
     client.execute { createIndex("amazon_extractions_"+filename) mappings (
@@ -21,7 +21,7 @@ object IV_extraction {
         keywordField("pattern"),
         keywordField("extractions")
       ))
-    }
+    }*/
 
     println("loadFiles")
     val inputFile1: File = new File(filename + "ssplit_extr.txt") // read from file
@@ -33,15 +33,20 @@ object IV_extraction {
 
 
     // this value lookes like: List((PRP,I), (VBP,like), (PRP,it), (.,.))
-    println("listOfListsOfTuplesWithWordAndPOS")
-    val listOfListsOfTuplesWithWordAndPOS: Vector[List[(String, String)]] = text3.map(x => x.split("\\s").toList.map(x => {
-      val y = x.drop(1).dropRight(1).split("\\,")
-      if (y.size == 2) {
-        (y(0), y(1))
+    println("listOfListsOfTuplesWithPOSAndWords")
+    val listOfListsOfTuplesWithPOSAndWords: Vector[List[(String, String)]] = text3.map(x => x.split("\\s").toList.map(x => {
+      val y = x.drop(1).dropRight(1)
+
+      val z = y.split("\\,")
+      if (z.size == 2) {
+        (z(0), z(1))
+      }else if(y.equals(",,,")){
+        (",", ",")
       } else {
+        //println("unknown POS: "+y)
         ("", "")
       }
-    })).toVector
+    })).toVector.map(x=>x.filter(x=>{if(x._1 == "," && x._1 == ","){false}else{true}})) // filter all (",",",")
 
     // this value lookes like: List(List(List(Nautica makes quality products.), List(Nautica,  makes,  quality products)), ....
     println("parsedExtractions")
@@ -62,7 +67,7 @@ object IV_extraction {
       println("rulesAll: "+i+" of "+parsedExtractionsSize)
       val rules = List.newBuilder[String]
 
-      rules += (for(i<-listOfListsOfTuplesWithWordAndPOS(i))yield{i._1}).mkString(" ")
+      rules += (for(i<-listOfListsOfTuplesWithPOSAndWords(i))yield{i._1}).mkString(" ")
       //println(parsedExtractions(i)(0)(0)) // print sentences
 
       for (lineNumber <- parsedExtractions(i).indices) {
@@ -78,7 +83,7 @@ object IV_extraction {
 
                   val occurenceIndices = List.newBuilder[Int]
 
-                  listOfListsOfTuplesWithWordAndPOS(i).zipWithIndex.foreach { case (tuple, j) => if (tuple._2 == word) {
+                  listOfListsOfTuplesWithPOSAndWords(i).zipWithIndex.foreach { case (tuple, j) => if (tuple._2 == word) {
                     occurenceIndices += j
                   }
                   }
@@ -88,6 +93,7 @@ object IV_extraction {
                     if (k >= partOfTriple.split(" ").size - 1) {
                       rule += ";"
                     } else {
+                      //println("ERROR1")
                       rule += " "
                     }
                   } else if (occurenceIndices.result().size == 1) {
@@ -96,6 +102,7 @@ object IV_extraction {
                     if (k >= partOfTriple.split(" ").size - 1) {
                       rule += ";"
                     } else {
+                      //println("ERROR2")
                       rule += " "
                     }
                   } else {
@@ -118,21 +125,21 @@ object IV_extraction {
                 if (partOfTripleSplitted(l - 1).head == '#') {
                   wordBefore = partOfTripleSplitted(l - 1).drop(1)
                 } else {
-                  wordBefore = listOfListsOfTuplesWithWordAndPOS(i)(partOfTripleSplitted(l - 1).toInt)._2
+                  wordBefore = listOfListsOfTuplesWithPOSAndWords(i)(partOfTripleSplitted(l - 1).toInt)._2
                 }
               }
               if (l + 1 < partOfTripleSplitted.size) {
                 if (partOfTripleSplitted(l + 1).head == '#') {
                   wordAfter = partOfTripleSplitted(l + 1).drop(1)
                 } else {
-                  wordAfter = listOfListsOfTuplesWithWordAndPOS(i)(partOfTripleSplitted(l + 1).toInt)._2
+                  wordAfter = listOfListsOfTuplesWithPOSAndWords(i)(partOfTripleSplitted(l + 1).toInt)._2
                 }
               }
 
               if (item.head == '#') {
                 val word = item.drop(1)
                 val occurenceIndices = List.newBuilder[Int]
-                listOfListsOfTuplesWithWordAndPOS(i).zipWithIndex.foreach { case (tuple, j) => if (tuple._2 == word) {
+                listOfListsOfTuplesWithPOSAndWords(i).zipWithIndex.foreach { case (tuple, j) => if (tuple._2 == word) {
                   occurenceIndices += j
                 }
                 }
@@ -141,16 +148,16 @@ object IV_extraction {
                 occurenceIndices.result().foreach(index => {
                   var pointsForIndex = 0
                   if ((index - 1) >= 0) {
-                    val MaybeWordBeforeTuple = listOfListsOfTuplesWithWordAndPOS(i)(index - 1)
+                    val MaybeWordBeforeTuple = listOfListsOfTuplesWithPOSAndWords(i)(index - 1)
                     if (MaybeWordBeforeTuple._2 == wordBefore) {
                       pointsForIndex += 1
                     }
                   }
-                  if ((index + 1) < listOfListsOfTuplesWithWordAndPOS(i).size) { // this is wrong
-                    val MaybeWordAfterTuple = listOfListsOfTuplesWithWordAndPOS(i)(index + 1)
+                  if ((index + 1) < listOfListsOfTuplesWithPOSAndWords(i).size) { // this is wrong
+                    val MaybeWordAfterTuple = listOfListsOfTuplesWithPOSAndWords(i)(index + 1)
                     if (MaybeWordAfterTuple._2 == wordAfter) {
                       if (returnValue != "" && returnValue != index) {
-                        //println("match not exact :( FIX ME!!  "+ listOfListsOfTuplesWithWordAndPOS(i)(index))
+                        //println("match not exact :( FIX ME!!  "+ listOfListsOfTuplesWithPOSAndWords(i)(index))
                       }
                       pointsForIndex += 1
                     }
@@ -174,42 +181,45 @@ object IV_extraction {
         }
       }
       if(rules.result().size>1){
-        val extractions = rules.result().tail.mkString(",")
+        /*val extractions = rules.result().tail.mkString(",")
         client.execute {
           indexInto(("amazon_extractions_"+filename) / "doc") fields (
             "pattern" -> rules.result().head,
             "extractions" -> extractions
           )
-        }
-        //rulesAll += rules.result()
+        }*/
+        rulesAll += rules.result()
       }
-      /*
-      rulesAll.result().foreach(x=> {
+
+      /*rulesAll.result().foreach(x=> {
         val extractions = x.tail.mkString(",")
         client.execute {
-          indexInto("amazon_extractions" / "doc") fields (
+          indexInto("amazon_extractions" / "doc") fields
             "pattern" -> x.head,
             "extractions" -> extractions
           )
-        }
-      })*/
-      rulesAll.clear()
-    }
+        }*/
+      }
+      //rulesAll.clear()}
+
     //}
     //)
 
     println("getExtractions FINISHED")
-    client.close()
+    //client.close()
     return rulesAll.result()
   }
   //////////
   // Index extractions
   //////////
-  def indexExtractions(rulesAll: List[List[String]]): Unit = {
+  def indexExtractions(filename:String, rulesAll: List[List[String]]): Unit = {
+
     println("indexExtractions READY")
+    println("rulesAllSize: "+rulesAll.size)
+    println("rulesAllSizeDistinct: "+rulesAll.distinct.size)
     val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
-    client.execute { deleteIndex("amazon_extractions")}
-    client.execute { createIndex("amazon_extractions") mappings (
+    client.execute { deleteIndex(("amazon_extractions_"+filename))}
+    client.execute { createIndex(("amazon_extractions_"+filename)) mappings (
         mapping("doc") as (
           keywordField("pattern"),
           keywordField("extractions")
@@ -217,10 +227,10 @@ object IV_extraction {
     }
     println("createIndex FINISHED")
 
-    rulesAll.foreach(x=> {
+    rulesAll.distinct.foreach(x=> {
       val extractions = x.tail.mkString(",")
       client.execute {
-        indexInto("amazon_extractions" / "doc") fields (
+        indexInto(("amazon_extractions_"+filename) / "doc") fields (
           "pattern" -> x.head,
           "extractions" -> extractions
         )
@@ -231,9 +241,11 @@ object IV_extraction {
 
   // MAIN
   def main(args: Array[String]): Unit = {
-    //val rulesAll = getExtractions("reviews10000")
-    val rulesAll = getExtractions("reviews24740")
-    //indexExtractions(rulesAll)
+    val filename = "reviews24740"
+    //val filename = "reviews10000"
+
+    val rulesAll = getExtractions(filename)
+    indexExtractions(filename, rulesAll)
 
   }
 }

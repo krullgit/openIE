@@ -141,7 +141,7 @@ object V_testExtract {
     println("listOfProductsReviewsSsplited")
     val listOfProductsReviewsSsplited: Vector[String] = ssplit(listOfProductsReviews).toVector
     println("listOfProductsReviewsPOSTagged")
-    val listOfProductsReviewsPOSTagged: Vector[List[(String, String)]] = annotatePos(listOfProductsReviewsSsplited).toVector
+    val listOfProductsReviewsPOSTagged: Vector[List[(String, String)]] = annotatePos(listOfProductsReviewsSsplited).toVector.map(x=>x.filter(x=>{if(x._1 == "," && x._1 == ","){false}else{true}}))  // filter all (",",",")
     println("listOfProductsReviewsPOSTaggedToken")
     val listOfProductsReviewsPOSTaggedToken: Vector[List[String]] = listOfProductsReviewsPOSTagged.map(x => {for(i <-x)yield {i._2}}).toVector
     println("listOfProductsReviewsPOSTaggedPOS")
@@ -149,7 +149,8 @@ object V_testExtract {
     println("EXTRACT :)")
 
     val matchNoMatch: immutable.Seq[Int] = for(sentenceNumber <- listOfProductsReviewsSsplited.indices)yield{
-      println(sentenceNumber)
+      //println(listOfProductsReviewsPOSTaggedToken(sentenceNumber).mkString(" "))
+      //println(listOfProductsReviewsPOSTaggedPOS(sentenceNumber).mkString(" "))
       val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
       // {"version":true,"query":{"term":{"pattern":{"value":"NN VBD RB IN JJ CC JJ IN VBD VBN ."}}}}
       val resp = client.execute {
@@ -168,9 +169,9 @@ object V_testExtract {
         var extractions = ""
         rules.foreach(x=>{x.foreach(partOfTriple=>{partOfTriple.foreach(index=>{extractions += listOfProductsReviewsPOSTaggedToken(sentenceNumber)(index.toInt)+" "});extractions=extractions.trim;extractions+=";"});extractions=extractions.dropRight(1);extractions +=","})
 
-        /*println("\n/\n")
+        println("\n/\n")
         println("Sentence: "+listOfProductsReviewsSsplited(sentenceNumber))
-        println("Extractions: "+extractions.dropRight(1))*/
+        println("Extractions: "+extractions.dropRight(1))
         1
       }else{
         0
@@ -225,6 +226,7 @@ object V_testExtract {
 
   // MAIN
   def main(args: Array[String]): Unit = {
-    testExtraction("reviews10000")
+    //testExtraction("reviews10000")
+    testExtraction("reviews24740")
   }
 }
