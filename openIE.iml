@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -12,20 +12,27 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="scala-sdk-2.12.4" level="application" />
-    <orderEntry type="library" name="Maven: com.google.guava:guava:21.0-rc2" level="project" />
-    <orderEntry type="library" name="Maven: com.sksamuel.elastic4s:elastic4s-http_2.12:6.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.4" level="project" />
-    <orderEntry type="library" name="Maven: com.sksamuel.elastic4s:elastic4s-core_2.12:6.1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.sksamuel.exts:exts_2.12:1.60.0" level="project" />
+    <orderEntry type="library" name="scala-sdk-2.12.2" level="application" />
+    <orderEntry type="library" name="Maven: org.apache.opennlp:opennlp-tools:1.8.4" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.play:play-json_2.12:2.6.7" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.12.2" level="project" />
+    <orderEntry type="library" name="Maven: com.typesafe.play:play-functional_2.12:2.6.7" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-reflect:2.12.2" level="project" />
+    <orderEntry type="library" name="Maven: org.typelevel:macro-compat_2.12:1.1.1" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9.9" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.8.9" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.9" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:21.0-rc2" level="project" />
+    <orderEntry type="library" name="Maven: com.sksamuel.elastic4s:elastic4s-http_2.12:6.1.4" level="project" />
+    <orderEntry type="library" name="Maven: com.sksamuel.elastic4s:elastic4s-core_2.12:6.1.4" level="project" />
+    <orderEntry type="library" name="Maven: com.sksamuel.exts:exts_2.12:1.60.0" level="project" />
     <orderEntry type="library" name="Maven: com.typesafe:config:1.3.0" level="project" />
-    <orderEntry type="library" name="Maven: org.typelevel:cats-core_2.12:1.0.0-RC2" level="project" />
-    <orderEntry type="library" name="Maven: org.typelevel:cats-macros_2.12:1.0.0-RC2" level="project" />
-    <orderEntry type="library" name="Maven: org.typelevel:cats-kernel_2.12:1.0.0-RC2" level="project" />
+    <orderEntry type="library" name="Maven: org.typelevel:cats-core_2.12:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.typelevel:cats-macros_2.12:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.typelevel:cats-kernel_2.12:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.typelevel:machinist_2.12:0.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
-    <orderEntry type="library" name="Maven: org.elasticsearch.client:elasticsearch-rest-client:6.1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.elasticsearch.client:elasticsearch-rest-client:6.1.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.5" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpasyncclient:4.1.2" level="project" />
@@ -53,10 +60,22 @@
     <orderEntry type="library" name="Maven: xml-apis:xml-apis:1.3.03" level="project" />
     <orderEntry type="library" name="Maven: xerces:xercesImpl:2.8.0" level="project" />
     <orderEntry type="library" name="Maven: xalan:xalan:2.7.0" level="project" />
-    <orderEntry type="library" name="Maven: joda-time:joda-time:2.9" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.efficient-java-matrix-library:ejml:0.23" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish:javax.json:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.6.1" level="project" />
     <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:models:3.7.0" level="project" />
+    <orderEntry type="library" name="Maven: com.sksamuel.avro4s:avro4s-core_2.12:1.8.0" level="project" />
+    <orderEntry type="library" name="Maven: com.sksamuel.avro4s:avro4s-macros_2.12:1.8.0" level="project" />
+    <orderEntry type="library" name="Maven: com.chuusai:shapeless_2.12:2.3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.avro:avro:1.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-core-asl:1.9.13" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-mapper-asl:1.9.13" level="project" />
+    <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.1.1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-compress:1.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.tukaani:xz:1.5" level="project" />
+    <orderEntry type="library" name="Maven: org.scalatest:scalatest_2.12:3.2.0-SNAP9" level="project" />
+    <orderEntry type="library" name="Maven: org.scalactic:scalactic_2.12:3.2.0-SNAP9" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-xml_2.12:1.0.5" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.12:1.0.4" level="project" />
   </component>
 </module>

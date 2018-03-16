@@ -1,0 +1,71 @@
+Received this bag several weeks back and have been using it on the job with great success.
+
+
+You can find many storage organizers that are much less expensive.
+"You"	"can find"	"many storage organizers"
+"many storage organizers"	"are"	"expensive much"
+"many storage organizers"	"are"	"expensive less"
+"many storage organizers"	"are"	"expensive"
+
+I no longer wear a heavy tool belt that is uncomfortable and needs constant adjusting.
+Satztrennung bei that könnte viele wichtige Informationen vernichten
+"I"	"wear"	"a heavy tool belt no longer"
+"I"	"wear"	"a heavy tool belt"
+"I"	"needs"	"constant adjusting"
+"a heavy tool belt"	"is"	"uncomfortable"
+
+The zipper is a wee bit stiff at first but now that I've opened and closed it a couple dozen times it works pretty smooth.
+"The zipper"	"is"	"a wee bit stiff at first now that I 've opened"
+"The zipper"	"is"	"a wee bit stiff at first now that I closed it a couple dozen times"
+"I"	"'ve opened"
+"I"	"closed"	"it a couple dozen times"
+"it"	"a couple dozen times"
+"it"	"works"	"pretty smooth" // Entity Linking wäre hier sinnvoll. kann nicht alleine durch deep openIE bewältigt werden
+
+Compact and surprisingly holds a lot of pens and markers.
+"Compact"	"holds"	"a lot of pens" // falsch
+"Compact"	"holds"	"a lot of markers"
+"surprisingly"	"holds"	"a lot of pens"
+"surprisingly"	"holds"	"a lot of markers"
+
+Very useful, instead of carry a pen box, I just use this.
+-complete useless
+"I"	"use"	"this just"
+"I"	"use"	"this"
+
+I got this mainly for roof work as a way to keep my drill close-by.
+"I"	"got"	"this mainly for roof work as a way to keep my drill close-by"
+"I"	"got"	"this mainly"
+"my"	"has"	"drill close-by" // falsche implizite Fakten
+
+ Latches, hinges, handle, everything is well made and holds up to every day use.
+ -absulut useless
+ "Latches"	"is"	"hinges"
+ "Latches"	"handle"
+ "everything"	"is made"	"Latches handle well"
+ "everything"	"is made"	"Latches handle"
+ "everything"	"holds up"	"Latches handle to every day use"
+ "everything"	"holds up"	"Latches handle"
+
+Yes, this is a great way to get all those screws, nuts, bolts, etc., out of that plastic tub sitting in your garage!
+-useless, with chunking would be better
+"this"	"is"	"Yes a great way to get all those screws out of that plastic tub sitting in your garage"
+"all those screws out of that plastic tub sitting in your garage"	"is"	"bolts"
+"all those screws out of that plastic tub sitting in your garage"	"is"	"etc."
+"all those screws out of that plastic tub"	"be sitting"	"in your garage"
+"all those screws out of that plastic tub sitting in your garage"	"is"	"nuts"
+"your"	"has"	"garage"
+
+ // openIE 5.0
+ - obwohl Teilsatz, wurde das wichtigste gefiltert
+ If it is too difficult to open the ratchets
+ 0,52 (it; is; too difficult to open the ratchets)
+
+- wichtige Info fehlt
+ If I had any complains its that they're heavy
+ 0,28 (I; had; any)
+ - clausIE macht das besser (jedenfalls Nr. 3)
+ "I"	"had"	"any complains its that they 're heavy"
+ "any"	"complains"	"its"
+ "they"	"'re"	"heavy"
+

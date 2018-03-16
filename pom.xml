@@ -14,11 +14,60 @@
         <elastic4sVersion>5.5.4</elastic4sVersion>
         <corenlp.version>3.7.0</corenlp.version>
         <guava.version>21.0-rc2</guava.version>
+        <avro.version>1.5.3</avro.version>
     </properties>
 
     <dependencies>
 
-        <!-- CoreNLP -->
+        <dependency>
+            <groupId>org.apache.opennlp</groupId>
+            <artifactId>opennlp-tools</artifactId>
+            <version>1.8.4</version>
+        </dependency>
+
+        <!--<dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.9.1</version>
+        </dependency>-->
+
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-json_2.12</artifactId>
+            <version>2.6.7</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jackson-annotations</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-core</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+
+
+            </exclusions>
+        </dependency>
+
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -28,7 +77,8 @@
         <dependency>
             <groupId>com.sksamuel.elastic4s</groupId>
             <artifactId>elastic4s-http_2.12</artifactId>
-            <version>6.1.1</version>
+            <version>6.1.4</version>
+
         </dependency>
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
@@ -41,6 +91,34 @@
             <version>${corenlp.version}</version>
             <classifier>models</classifier>
         </dependency>
+
+
+        <dependency>
+            <groupId>com.sksamuel.avro4s</groupId>
+            <artifactId>avro4s-core_2.12</artifactId>
+            <version>1.8.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>scala-library</artifactId>
+                    <groupId>org.scala-lang</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>paranamer</artifactId>
+                    <groupId>com.thoughtworks.paranamer</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.12</artifactId>
+            <version>3.2.0-SNAP9</version>
+
+        </dependency>
+
 
     </dependencies>
 
@@ -73,6 +151,32 @@
                     </args>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.avro</groupId>
+                <artifactId>avro-maven-plugin</artifactId>
+                <version>1.7.7</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>schema</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/main/avro/</sourceDirectory>
+                            <outputDirectory>${project.basedir}/src/main/java/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
