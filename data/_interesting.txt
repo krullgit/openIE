@@ -69,3 +69,42 @@ Yes, this is a great way to get all those screws, nuts, bolts, etc., out of that
  "any"	"complains"	"its"
  "they"	"'re"	"heavy"
 
+over 	a 	period 	of	2-3 	hours 	they 	slowly 	equilibrated
+B-PP	B-NP	I-NP	B-PP	B-NP	I-NP	B-NP	B-VP	I-VP
+4	5	6	7	8	9	1	2	3
+
+After 	3 	month 	of 	use 	it 	is 	broken
+B-PP	B-NP	I-NP	B-PP	B-NP	B-NP	B-VP	I-VP
+4	5	6	7	8	1	2	3
+
+power has stayed up without recharging  for 4 mos
+- OIE5 no extraction
+- me: power , has stayed up  without , recharging  for 4 mos
+
+Would have rated 5 stars except cover vibrates lose
+
+The bit holder holds on well to the bit
+0,91 (The bit holder; holds on well to; the bit) oie5
+me: The bit holder , holds  on  to , the bit well
+me: The bit holder , holds , on
+
+it was impossible to put it back in there
+oie5: nothing
+me: nothing
+clausie: "it"	"was"	"impossible to put back it in there"
+
+The previous one just burst in the middle of watering my plants
+me: no extr.
+maybe this is a good one to try  clustering like levenstein?
+
+
+The bottle is broken
+Vector((DT,The), (NN,bottle), (VBZ,is), (VBN,broken)) // broken wird nicht als Adjektiv sondern als Verb erkannt, bei anderen Derivationen geht das aber z.B. drinkable
+Lösung: VBN (Past Participle ) gesondert behandeln?
+Vector(B-NP, I-NP, B-VP, I-VP)
+
+President Trump was in Cleveland, OH on Saturday
+me: withou comma no problem but the comma is a problem
+
+President Trump recently received a letter from one Ohio resident, Mrs. Sharlene Thornton, who joined him in Cleveland yesterday.
+me: check sentence, DATE makes trouble
