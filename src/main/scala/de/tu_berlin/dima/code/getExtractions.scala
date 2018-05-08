@@ -661,14 +661,27 @@ object getExtractions {
       print("Sentence: ")
       val sentence: String = scala.io.StdIn.readLine()
 
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+      //  get NER Annotation
+      //  another advantage here is that the ner tagger gives us correct tokenization (difficult cases like Mar., -> Vektor(DATE,,))
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+
       //(sentenceAsVector, nerVectorResult, tokenVectorResult)
       val getner = getNER(sentence)
-
       val sentenceSplitted: Vector[String] = getner._1.filterNot(_ == ".")
       val nerVector = getner._2
       val tokenVector = getner._3
 
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+      // divide the sentence in sentence parts (splitted by commas)
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+
       val sentenceSplittedComma: Vector[String] = sentenceSplitted.mkString(" ").split(",").map(_.trim).toVector
+
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+      // make combinations of that sentence parts and send each to the extraction function
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+
       if (sentenceSplittedComma.size > 1) {
         val sentenceCombinations = sentenceSplittedComma.toSet[String].subsets().map(_.toVector).toVector // get all combination of sentence-parts
         //println("sentenceCombinations: "+sentenceCombinations)
@@ -685,18 +698,19 @@ object getExtractions {
             }
           }
         }
-      } else { // TODO: consider the case if a commas doesn't stand for a part of sentence divider
+      } else {
         getExtractions(sentenceSplitted, sentenceSplitted.mkString(" "))
       }
 
-
-
-
-      // are there commas?
-
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
+      // takes one sentence and produce extractions
+      // - - - - - - - - - - - - - - - - - - - - - - - - -
 
       def getExtractions(sentenceSplitted: Vector[String], sentence: String): Int = {
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
+        // apply the sentence chunker
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
 
         //println("sentenceSplitted: "+sentenceSplitted)
         //println("sentence: "+sentence)
@@ -706,9 +720,13 @@ object getExtractions {
         val chunkedTags: Vector[String] = chunking(pos.map(x => x._2).toArray, pos.map(x => x._1).toArray).toVector
         //println(chunkedTags)
 
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
+        // bring chunks and chunk annotations in a shortened form
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
         val chunkedTagsReduced = Vector.newBuilder[String]
         val chunkedSentenceReduced = Vector.newBuilder[String]
-
 
         chunkedTagsReduced += chunkedTags(0)
         var chunkedSentenceReducedTMP: String = sentenceSplitted(0)
@@ -725,10 +743,14 @@ object getExtractions {
         }
 
         chunkedSentenceReduced += chunkedSentenceReducedTMP
-
         val chunkedTagsReducedResult: Vector[String] = chunkedTagsReduced.result()
         var chunkedSentenceReducedResult: Vector[String] = chunkedSentenceReduced.result().map(_.trim)
         //println("chunkedSentenceReducedResult: "+chunkedSentenceReducedResult)
+
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
+        // replace the NER tags in the sentence with the original words
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
 
         val chunkedSentenceReducedResultXY = chunkedSentenceReducedResult.map(chunk=>{
           //println("word: "+chunk)
@@ -744,14 +766,17 @@ object getExtractions {
               //println("splittedChunk: "+splittedChunk)
           }}
           chunkSplitted.mkString(" ")
-
         })
         //println("chunkedSentenceReducedResultXY: "+chunkedSentenceReducedResultXY)
-
         //println("sentenceChunked: "+sentenceChunked.zip(chunkedTags))
         //println("chunkedTags: "+chunkedTags)
         //println("chunkedTagsReducedResult: "+chunkedTagsReducedResult.mkString(" "))
         //println("chunkedSentenceReducedResult: "+chunkedSentenceReducedResult)
+
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
+        // qery elasticsearch for extraction rules (ordered by extraction quality)
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
 
         val client = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
         implicit val timeout = Duration(20, "seconds") // is the timeout for the SearchIterator.hits method
@@ -767,8 +792,11 @@ object getExtractions {
         //Martin is with Julia
         // For this reason I bought the watch
 
-        //println("extractions.result(): "+extractions.result().zip(extractionsCount.result()))
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
+        // print extraction in dependency to the quality (count) of them
+        // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+        //println("extractions.result(): "+extractions.result().zip(extractionsCount.result()))
         if (extractions.result().size > 0) { // is there a result
         case class extractionClass(part1: Vector[Int], part2: Vector[Int], part3: Vector[Int])
           for (i <- 0 until (if (extractions.result().size > 1) 2 else extractions.result().size)) { // give maximum 2 extractions
@@ -807,6 +835,9 @@ object getExtractions {
 
   }
 
+  // - - - - - - - - - - - - - - - - - - - - - - - - -
+  // this function delivers a vector with sentence token (replaced with NER tags) and a Vector with words and their corresponding NER replacements
+  // - - - - - - - - - - - - - - - - - - - - - - - - -
 
   def getNER(sentence: String): (Vector[String], Vector[String], Vector[String]) = { // get POS tags per sentence
     println("LOADING STANFORD PARSER")
