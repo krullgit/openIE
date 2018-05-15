@@ -1,0 +1,13 @@
+1:
+etwa 4 Mio Sätze
+0 bis 12 Wörter
+Sätze gesplittet bei "but","and" und ","
+2:
+63000 Sätze
+13 bis 30 Wörter
+Sätze nicht gesplittet bei "but","and" und ","
+3:
+15000 Sätze
+0 bis 12 Wörter
+nur Sätze die "but","and" und "," enthalten
+

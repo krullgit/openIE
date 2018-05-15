@@ -1,3 +1,8 @@
+WHAT IS THIS ?
+https://github.com/knowitall/openie-demo
+
+
+
 Received this bag several weeks back and have been using it on the job with great success.
 
 
@@ -108,3 +113,101 @@ me: withou comma no problem but the comma is a problem
 
 President Trump recently received a letter from one Ohio resident, Mrs. Sharlene Thornton, who joined him in Cleveland yesterday.
 me: check sentence, DATE makes trouble
+
+sentenceCombi: The ORGANIZATION ORGANIZATION gardens have a history nearly as old as our country ’s
+The White House gardens ,have nearly as old ,a history
+Solution? :  take care about country ’s
+
+President Trump recently received a letter from one OH resident, Mrs. Sharlene Thornton, who will be joining him in Cleveland today.
+me: President Trump recently ,received ,a letter from one OH resident  // recently is treadet as a NN due to NER(DATE) -> TODO
+clausie: "one OH resident"	"is"	"Mrs. Sharlene Thornton" // TODO: make a simple rule for that?
+more examples
+Heavyweight champion, Wladimir Klitschko, is the king.
+The head of the branch, Bob Schmidt, announced the contract.
+
+The President will talk with local residents about the impact of his December tax cuts legislation on jobs and wages.
+cie: "his"	"has"	"December tax cuts legislation" // TODO: I need to coreference here to do this
+
+Tomorrow, President Trump will be in Cleveland to talk with local residents about the impact of his December tax cuts legislation on jobs and wages.
+me: nothing TODO: make a simple rule which applies the rest of the sentence to the first part if the first part matches a pattern
+more like this: Yesterday, President Trump signed an Executive Order to ensure that faith-based organizations have strong advocates in the White House
+
+Bsp 1.: Because of President Trump's tax cuts, the Thornton family will have more money to make ends meet
+chunkedSentenceReducedResult: Vector(Because of, President PERSON1, 's tax cuts) //TODO: wrong chunks! So build them before slpitting the sentences? WORKED
+[33] Because of ,President Trump ,'s tax cuts
+cie: the Thornton family ,will have ,more money to make ends meet Because of President Trump tax cuts // I DIDN'T find this TODO: another order of sentence parts could result in a match WORKED
+
+Last month, the economy added 164,000 new jobs as the unemployment rate fell to 3.9%, cracking 4% for the first time since 2000.
+clausie: "the unemployment rate"	"fell"	"to 3.9 % cracking 4 % for the first time since 2000" // TODO: impossible for me to achieve this because we cant now that 4% refers to the unemployment rate?
+
+we will continue to give these heroes the training, the tools, and the RESPECT they deserve.
+TODO: implement a pattern which deals with the commas
+
+We are going to demand Congress secure the border in the upcoming CR.
+cie: "Congress"	"secure"	"the border in the upcoming CR" // wrong :)
+me: no wrong extractions
+
+He walked all the way home, he shut the door.
+cie: "He"	"walked"	"all the way home"
+cie: "he"	"shut"	"He walked all the way home the door" // wrong :)
+me: correct
+
+He thought quickly but still did not answer correctly.
+cie: "He"	"did not answer"	"correctly"
+me: He ,thought ,quickly but still did not answer correctly  // I think this is besser because the above on could lead to misleading information
+example: He shot quickly but still looks very handsome.
+cie: "He"	"looks"	"very handsome"
+
+I saw that she was busy, and prepared to leave.
+- here "prepered to leave" refers to "she"
+cie: "I"	"saw"	"that she was prepared to leave" // wrong
+cie: "she"	"was prepared"	"to leave" // wrong
+me: // correct
+[1024] I ,saw ,that she was busy
+[150] she ,was ,busy
+
+Between your house on Main Street and my house on Grand Avenue, the mayor's mansion stands proudly.
+cie: alles richtig
+me. nothing TODO: parse sentences with bigger length
+
+More than half of Canadians under 35 say they're spending less because of recent rate hikes
+me: nothing, TODO: sent is too long, I could just add the part with "because" to the word before because my extractor finds this
+me: 35 ,say ,they 're spending less TODO: How to manage this?
+
+Wall Street is moving, and it’s reshaping New York.
+TODO: split inputs like this at "and"?
+
+On the downside, higher rates would probably leave some borrowers unable to service their debts.
+cie: "higher rates"	"would leave"	"some borrowers unable to service their debts On the downside"
+me: higher rates ,would probably leave ,some borrowers unable to service their debts // this is better because "probably" is important here
+
+ To keep unemployment down Turkey would need to transition to a production- and export-led economic growth model.
+ TODO: Put the conjunction together and treat therefore as one chunk
+
+ The economy would cool, imports would slow and the current-account deficit would narrow
+ me: confused extraction TODO: just split at comma and "and"
+
+ Investors worry that political pressure means Turkey's central bank will resist a hike until it's forced to do so by the market.
+ me: nothing TODO: append the rest like above
+
+ To make sure the money stays, Turkey's central bank needs interest rates that are high enough to lure investors
+cie: doesn't have: [13] Turkey central bank ,needs ,interest rates that are high enough to lure investors (I got it)
+
+There is a million pockets for a trillion tools
+
+
+
+
+AND's IM INTERESTED IN:
+1.
+Tim has a black car and reads a book.
+Part of the problem is that Turkey lacks energy resources and is a major oil importer. //TODO: make rule: if Verb follows "and", put the rest of the sent in to chunk before "and"
+
+2.
+he has a big car, a char and flying cats. // TODO: if a noun follows
+He got flying dangerous cats which are sitting on a tree, three small awesome dogs and a bird, which can fly to the moon and beyond.
+
+3.
+His car is green, blue and yellow
+His helicopter is very tidy from inside, looks like a new spaceship and is as fast as the light.
+
