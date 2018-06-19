@@ -88,7 +88,7 @@ power has stayed up without recharging  for 4 mos
 
 Would have rated 5 stars except cover vibrates lose
 
-The bit holder holds on well to the bit
+The bit holder holds on well to the bit.
 0,91 (The bit holder; holds on well to; the bit) oie5
 me: The bit holder , holds  on  to , the bit well
 me: The bit holder , holds , on
@@ -98,7 +98,7 @@ oie5: nothing
 me: nothing
 clausie: "it"	"was"	"impossible to put back it in there"
 
-The previous one just burst in the middle of watering my plants
+The previous one just burst in the middle of watering my plants.
 me: no extr.
 maybe this is a good one to try  clustering like levenstein?
 
@@ -108,13 +108,13 @@ Vector((DT,The), (NN,bottle), (VBZ,is), (VBN,broken)) // broken wird nicht als A
 Lösung: VBN (Past Participle ) gesondert behandeln?
 Vector(B-NP, I-NP, B-VP, I-VP)
 
-President Trump was in Cleveland, OH on Saturday
+President Trump was in Cleveland, OH on Saturday.
 me: withou comma no problem but the comma is a problem
 
 President Trump recently received a letter from one Ohio resident, Mrs. Sharlene Thornton, who joined him in Cleveland yesterday.
 me: check sentence, DATE makes trouble
 
-sentenceCombi: The ORGANIZATION ORGANIZATION gardens have a history nearly as old as our country ’s
+sentenceCombi: The ORGANIZATION ORGANIZATION gardens have a history nearly as old as our country’s.
 The White House gardens ,have nearly as old ,a history
 Solution? :  take care about country ’s
 
@@ -132,7 +132,7 @@ Tomorrow, President Trump will be in Cleveland to talk with local residents abou
 me: nothing TODO: make a simple rule which applies the rest of the sentence to the first part if the first part matches a pattern
 more like this: Yesterday, President Trump signed an Executive Order to ensure that faith-based organizations have strong advocates in the White House
 
-Bsp 1.: Because of President Trump's tax cuts, the Thornton family will have more money to make ends meet
+Bsp 1.: Because of President Trump's tax cuts, the Thornton family will have more money to make ends meet.
 chunkedSentenceReducedResult: Vector(Because of, President PERSON1, 's tax cuts) //TODO: wrong chunks! So build them before slpitting the sentences? WORKED
 [33] Because of ,President Trump ,'s tax cuts
 cie: the Thornton family ,will have ,more money to make ends meet Because of President Trump tax cuts // I DIDN'T find this TODO: another order of sentence parts could result in a match WORKED
@@ -140,7 +140,7 @@ cie: the Thornton family ,will have ,more money to make ends meet Because of Pre
 Last month, the economy added 164,000 new jobs as the unemployment rate fell to 3.9%, cracking 4% for the first time since 2000.
 clausie: "the unemployment rate"	"fell"	"to 3.9 % cracking 4 % for the first time since 2000" // TODO: impossible for me to achieve this because we cant now that 4% refers to the unemployment rate?
 
-we will continue to give these heroes the training, the tools, and the RESPECT they deserve.
+We will continue to give these heroes the training, the tools, and the respect they deserve.
 TODO: implement a pattern which deals with the commas
 
 We are going to demand Congress secure the border in the upcoming CR.
@@ -211,3 +211,5 @@ He got flying dangerous cats which are sitting on a tree, three small awesome do
 His car is green, blue and yellow
 His helicopter is very tidy from inside, looks like a new spaceship and is as fast as the light.
 
+4.
+The carrying case should have been contructed of heavier fabric and stitching as it will be subjected to worksite abuse.
