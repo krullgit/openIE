@@ -195,7 +195,30 @@ cie: doesn't have: [13] Turkey central bank ,needs ,interest rates that are high
 
 There is a million pockets for a trillion tools
 
+Everything I want is you.
+ClausIE: // komplett falsch
+"I"	"want"	"Everything"
+"Everything"	"is"	"you"
 
+I like sugar, as well as meat.
+ClausIE: // bekomme ich das auch hin?
+"I"	"like"	"sugar"
+"I"	"like"	"meat"
+
+The car is black and a little bit green.
+sentWithPos: Vector((DT,The), (NN,car), (VBZ,is), (JJ,black), (CC,and), (DT,a), (JJ,little), (NN,bit), (JJ,green), (.,.))
+Vector(B-NP, B-VP, B-ADJP, O, B-NP, O) // obwohl green ein JJ ist
+// chunking error: little bit green sollte ein ADJP sein, ist aber ein NP // TODO: vllt einfach eine Regel dafür einführen?
+The color green is cool.
+sentWithPos: Vector((DT,The), (NN,color), (NN,green), (VBZ,is), (JJ,cool), (.,.))
+Vector((B-NP,The), (I-NP,color), (I-NP,green), (B-VP,is), (B-ADJP,cool), (O,.))
+// hier funktioniert es ja auch
+
+The table is green or blue.
+clausIE:
+"The table"	"is"	"green"
+"The table"	"is"	"blue"
+Ist nicht richtig
 
 
 AND's IM INTERESTED IN:

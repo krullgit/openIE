@@ -6,12 +6,17 @@ import java.util.Properties
 import com.sksamuel.elastic4s.ElasticsearchClientUri
 import com.sksamuel.elastic4s.http.HttpClient
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
+import edu.stanford.nlp.process.DocumentPreprocessor
 import opennlp.tools.chunker.{ChunkerME, ChunkerModel}
 
 import scala.concurrent.duration.Duration
 import scala.io.Source
 
 object main {
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - -
+  // load rest
+  // - - - - - - - - - - - - - - - - - - - - - - - - -
 
   val client: HttpClient = HttpClient(ElasticsearchClientUri("localhost", 9200)) // new client
   implicit val timeout = Duration(20, "seconds") // is the timeout for the SearchIterator.hits method
@@ -25,39 +30,53 @@ object main {
   val chunker: ChunkerME = new ChunkerME(model)
 
   println("LOADING STANFORD PARSER")
+  println("pipelinePos")
   val propsPos: Properties = new Properties() // set properties for annotator
   propsPos.put("annotators", "tokenize, ssplit,pos") // set properties
-  val pipelinePos: StanfordCoreNLP = new StanfordCoreNLP(propsSplit) // annotate file
+  propsPos.put("pos.model", "data/english-left3words-distsim.tagger")
+  val pipelinePos: StanfordCoreNLP = new StanfordCoreNLP(propsPos) // annotate file
 
-  println("LOADING STANFORD PARSER 2")
+  println("pipelineNER")
   val propsNER: Properties = new Properties() // set properties for annotator
   propsNER.put("annotators", "tokenize, ssplit, pos, lemma, ner, regexner")
   propsNER.put("regexner.mapping", "data/jg-regexner.txt")
+  propsNER.put("pos.model", "data/english-left3words-distsim.tagger")
   val pipelineNER: StanfordCoreNLP = new StanfordCoreNLP(propsNER) // annotate file
 
-  println("LOADING STANFORD PARSER 3")
+  println("pipelineSplit")
   val propsSplit: Properties = new Properties()
   propsSplit.put("annotators", "tokenize, ssplit")
+  propsSplit.put("pos.model", "data/english-left3words-distsim.tagger")
   val pipelineSplit: StanfordCoreNLP = new StanfordCoreNLP(propsSplit)
   println("READY LOADING STANFORD PARSER")
-
-  println("LOADING STANFORD PARSER 4")
-  val propsDep: Properties = new Properties()
-  propsDep.put("annotators", "tokenize,ssplit,pos,depparse")
-  val pipelineDep: StanfordCoreNLP = new StanfordCoreNLP(propsDep)
-  println("READY LOADING STANFORD PARSER")
-
+  /*
+    println("LOADING STANFORD PARSER 4")
+    val propsDep: Properties = new Properties()
+    propsDep.put("annotators", "tokenize,ssplit,pos,depparse")
+    propsDep.put("pos.model", "data/english-left3words-distsim.tagger")
+    val pipelineDep: StanfordCoreNLP = new StanfordCoreNLP(propsDep)
+    println("READY LOADING STANFORD PARSER")
+  */
 
   def main(args: Array[String]): Unit = {
+
+
+
+
+
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
     // parameter
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    val step: String = "1"
+    // 1 = saveSentences
+    // 2 = parseExtractions
+    // 3 = test chunking
+    // 4 = test openIE
     val wordsLowerBorder = 3;
     val wordsUpperBound = 40;
-    val step: String = "1"
-    val numberOfProducts: Int = 100000
+    val numberOfProducts: Int = 10000
     //println("We could fetch theoretically "+iterator.length+" product IDs") // 400000
     val maxRedundantChunkPattern: Int = 3
     val category: String = "tools"
@@ -66,12 +85,13 @@ object main {
     // get current file name
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    val extractionObject = new getExtractions(client,chunker,pipelinePos,pipelineNER,pipelineSplit,pipelineDep)
+    val extractionObject = new getExtractions(client,chunker,pipelinePos,pipelineNER,pipelineSplit,pipelineSplit)
     var reviewName = ""
     def getCurrentFileName(): Unit = {
       (0 to 1000).foreach(index => {
         try {
-          (Source.fromFile("data/review" + index + "_ssplit.txt")); println("review" + index + " gibt es schon.")
+          (Source.fromFile("data/review" + index + "_ssplit.txt"))
+          //println("review" + index + " gibt es schon.")
         } catch {
           case e: FileNotFoundException => reviewName = "review" + index; return
         }
@@ -115,18 +135,33 @@ object main {
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
-    // test system
+    // test chunker
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
     else if (step == "3") {
+      while (true) {
+        print("Sentence: ")
+        val sentence: String = scala.io.StdIn.readLine()
+        val sentWithPos: Vector[(String, String)] = extractionObject.getPOS(sentence)
+        println("sentWithPos: "+sentWithPos)
+        val sentChunked: Vector[String] = extractionObject.chunking(sentWithPos.map(x => x._2).toArray, sentWithPos.map(x => x._1).toArray).toVector
+        println(sentChunked.zip(sentWithPos.map(x => x._2)))
+      }}
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - -
+    // test system
+    // - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    else if (step == "4") {
+
       extractionObject.testExtraction
     }
     println("DONE")
+    client.close()
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - -
   // close elastic client
   // - - - - - - - - - - - - - - - - - - - - - - - - -
 
-  client.close()
 }

@@ -18,6 +18,7 @@ import opennlp.tools.chunker.ChunkerME
 import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.concurrent.duration.Duration
+import edu.stanford.nlp.tagger.maxent.MaxentTagger
 
 
 class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: StanfordCoreNLP, pipelineNER: StanfordCoreNLP, pipelineSplit: StanfordCoreNLP, pipelineDep: StanfordCoreNLP) {
@@ -37,11 +38,6 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     tag
   }
 
-  // - - - - - - - - - - - - - - - - - - - - - - - - -
-  //
-  // - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
   def getPOS(sentence: String): Vector[(String, String)] = { // get POS tags per sentence
     val document: Annotation = new Annotation(sentence)
     pipelinePos.annotate(document) // annotate
@@ -53,6 +49,8 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
 
     } yield (pos, token.originalText()) // return List of POS tags
   }
+
+
 
   // - - - - - - - - - - - - - - - - - - - - - - - - -
   // this is just for test case since we do not need dep parse
@@ -258,7 +256,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
       } else {
         x
       }
-    })
+    }).map(_+".")
       .map(x => x.split(" "))
       .filter(x => x.size <= wordsUpperBound && x.size >= wordsLowerBorder)
       .map(x => x.mkString(" "))
@@ -287,7 +285,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     val sentWithPos: Seq[Vector[(String, String)]] = sentFilteredSigns
       .map(sent => {
         counterPOS += 1
-        if (counterPOS % 1000 == 0) println("POS tagged: " + counterPOS)
+        if (counterPOS % 10000 == 0) println("POS tagged: " + counterPOS)
         getPOS(sent)
       }) // get POS tags
 
@@ -337,7 +335,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // I group the chunk peaces e.g. "big green house"
     // - - - - - - - - - - -
 
-    val sentChunkedWithoutI: Seq[String] = sentChunked.map(x => x.filter(x => x(0).toString != "I").mkString(" ")) // I filter the I because I want to reduce every chun to one toke e.g. "big green house"
+    val sentChunkedWithoutI: Seq[String] = sentChunked.map(x => x.filter(x => x(0).toString != "I").mkString(" ")).map(_.mkString(" ")) // I filter the I because I want to reduce every chun to one toke e.g. "big green house"
     /*new PrintWriter(s"data/${filename}_chunks.txt") { // open new file
       sentChunkedWithoutI.foreach(x => write(x + "\n"))
       close // close file
@@ -347,20 +345,20 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // We count the chunks patterns which occurred in the reviews
     // - - - - - - - - - - -
 
-    val chunkCount: Vector[(String, Int)] = sentChunkedWithoutI.map(_.mkString(" ")) // make List of POS tags to String
+    val sentChunkedWithoutICount: Vector[(String, Int)] = sentChunkedWithoutI // make List of POS tags to String
       .groupBy(chunk => chunk) // groupby POS Tag strings
       .mapValues(_.size) // count occurrences
       .toVector
 
     // - - - - - - - - - - -
-    // We just to to retain "maxRedundantChunkPattern" of those sentences, which chunk pattern are the same.
+    // We just want to retain "maxRedundantChunkPattern" of those sentences, which chunk patterns are the same.
     // These sentences are saved in "sentFinal"
     // - - - - - - - - - - -
 
-    val chunkCountChunk: Seq[String] = chunkCount.map(x => x._1)
+    val chunkCountChunk: Seq[String] = sentChunkedWithoutICount.map(x => x._1)
     var chunkCountCountFinished: immutable.Seq[Int] = Vector.fill(chunkCountChunk.size)(0)
     val sentFinal = Vector.newBuilder[String]
-    sentChunkedWithoutI.map(_.mkString(" ")).zipWithIndex.foreach(sentAndIndex => {
+    sentChunkedWithoutI.zipWithIndex.foreach(sentAndIndex => {
       val sentChunks: String =  sentAndIndex._1
       val index: Int = sentAndIndex._2
       val sent: String =  sentFilteredSigns(index)
@@ -375,9 +373,27 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
       }else{
         println("THIS IS BAD")
       }
+    })
+
+    // - - - - - - - - - - -
+    // Show sentences with the same chunk pattern just for test cases
+    // - - - - - - - - - - -
+
+    /*
+    for(i <- 0 until sentChunkedWithoutICount.size){
+      val chunkCount = sentChunkedWithoutICount(i)._2
+      if(chunkCount>1){
+        println("chunkCount: "+chunkCount)
+        val chunkpattern: String = sentChunkedWithoutICount(i)._1
+        val indizesWhereChunkPatternMatches: Seq[Int] = sentChunkedWithoutI.zipWithIndex.filter(_._1==chunkpattern).map(_._2)
+        indizesWhereChunkPatternMatches.foreach(x=>println(sentFilteredSigns(x)))
+        println("")
+      }
     }
-    )
-    println("SENTENCES - AT MOST 'maxRedundantChunkPattern' CHUNK PATTERN OCCURRENCES: "+sentFinal.result().size)
+    */
+
+
+    println("SENTENCES (AT MOST "+maxRedundantChunkPattern+" CHUNK PATTERN OCCURRENCES) : "+sentFinal.result().size)
 
     // - - - - - - - - - - -
     // We save the reviews in a file to run openIE in it
@@ -396,7 +412,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
 
     var countOne: Double = 0
     var countMoreThanOne: Double = 0
-    chunkCount.foreach(x => {
+    sentChunkedWithoutICount.foreach(x => {
       if (x._2 == 1) {
         countOne += 1
       }
@@ -781,8 +797,8 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
     //(sentenceAsVector, nerVectorResult, tokenVectorResult)
-    val getner = getNER(sentence)
-    val sentenceSplitted: Vector[String] = getner._1.filterNot(x => x == "." || x == "?" || x == "!" || x == "'s" || x == "’s") // TODO: just filtering the "'s" might not be sufficient in every case e.g. when we whant to show properties | POS tag of 's is "POS" | but nevertheless important for corrent sentence chunking see "Bsp 1.:"
+    val getner: (Vector[String], Vector[String], Vector[String]) = getNER(sentence)
+    val sentenceSplitted: Vector[String] = getner._1.filterNot(x => x == "’s") // TODO: just filtering the "'s" might not be sufficient in every case e.g. when we want to show properties | POS tag of 's is "POS" | but nevertheless important for correct sentence chunking see "Bsp 1.:"
     val tokenVector = getner._3
     val nerVector = getner._2
 
@@ -899,7 +915,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
       //println("sentenceSplitted: "+sentenceSplitted)
 
       val pos: Vector[(String, String)] = getPOS(sentenceSplitted.mkString(" "))
-      //println(pos)
+      println("pos: "+pos)
       var chunkedTags: Vector[String] = chunking(pos.map(x => x._2).toArray, pos.map(x => x._1).toArray).toVector
       //println("chunkedTags: "+chunkedTags)
       //println(chunkedTags)
@@ -1106,6 +1122,10 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     //println("indexInOriginalSentenceResult: " + indexInOriginalSentenceResult)
 
     (sentenceAsVector, nerVectorResult, tokenVectorResult)
+    // Beispiel:
+    // sentenceAsVector: (Vector(PERSON1, PERSON2, is, black, .)
+    // nerVectorResult: Vector(PERSON1, PERSON2)
+    // tokenVectorResult: Vector(Barack, Obama)
   }
 
   // - - - - - - - - - - - - - - - - - - - - - - - - -
