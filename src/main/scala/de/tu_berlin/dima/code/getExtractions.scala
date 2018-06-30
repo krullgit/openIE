@@ -24,7 +24,7 @@ import edu.stanford.nlp.tagger.maxent.MaxentTagger
 class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: StanfordCoreNLP, pipelineNER: StanfordCoreNLP, pipelineSplit: StanfordCoreNLP, pipelineDep: StanfordCoreNLP) {
 
   implicit val timeout = Duration(20, "seconds") // is the timeout for the SearchIterator.hits method
-  case class chunkAndExtractions(chunks: String = "", extractionTriple: Vector[String] = Vector(""), count: Int = 0, precision: String = "")
+  case class chunkAndExtractions(chunks: String = "", extractionTriple: Vector[String] = Vector(""), count: Int = 0, precision: String = "",id: Int = 0,sentences:String="")
 
   // - - - - - - - - - - - - - - - - - - - - - - - - -
   //
@@ -476,9 +476,12 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // get chunks of the sentences
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    println("")
+    println("chunks")
+
     var counter1 = 0
     val justChunks: Seq[Array[String]] = justSentences.map(sent => {
-      println("counter1: " + counter1)
+      if(counter1 % 100 == 0)println("counter1: " + counter1)
       counter1 += 1
       val pos = getPOS(sent)
       val chunked: Array[String] = chunking(pos.map(x => x._2).toArray, pos.map(x => x._1).toArray)
@@ -516,7 +519,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
       .map(_.toList)
       .map(extractionPart => extractionPart
         .map(line => {
-          println("counter2: " + counter2)
+          if(counter2 % 100 == 0)println("counter2: " + counter2)
           counter2 += 1
           val indexFirst = line.indexOf("(")
           val indexLast = line.lastIndexOf(")")
@@ -543,6 +546,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     var counter3 = 0
     val rulesAll = Vector.newBuilder[Vector[String]]
     val precisionsAll = Vector.newBuilder[Vector[String]]
+    val sentencesAll = Vector.newBuilder[String]
     // e.g. rulesAll.result():
     // Vector(Vector(, 1;2 3 4;6 8;)) // the inner Vector stands for the different rules for ONE sentence
     // for the sentence:
@@ -550,7 +554,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // 0,38 (this; is really for; and parts)
     val parsedExtractionsSize = extractions.size
     for (extractionIndex <- extractions.indices) {
-      println("counter3: " + counter3)
+      if(counter3 % 100 == 0) println("counter3: " + counter3)
       counter3 += 1
       //println("rulesAll: " + extractionIndex + " of " + parsedExtractionsSize)
       val rules = Vector.newBuilder[String]
@@ -566,9 +570,10 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
 
         if (lineNumberOfExtraction != 0) { // exclude the sentence itself (only extraction lines are considered)
           if (!(extractions(extractionIndex)(lineNumberOfExtraction)(0) == "No extractions found.")) { // ollie uses this line to indicate that there is no extracion
-            if (extractions(extractionIndex)(lineNumberOfExtraction).size >= 2) { // TODO: consider extraction with only 2 parts
+            if (extractions(extractionIndex)(lineNumberOfExtraction).size >= 2) {
 
-              // figure out if oneWordOccursMultipleTimes
+              // figure out if oneWordOccursMultipleTimes TODO: In case of performance problems we should handle the negative case
+              /*
               val wordsInSentence = getPOS(extractions(extractionIndex)(lineNumberOfExtraction).mkString(" ")).map(_._2)
               var oneWordOccursMultipleTimes = false
               wordsInSentence.foreach(x => {
@@ -576,11 +581,9 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
                   oneWordOccursMultipleTimes = true
                 }
               })
+              //if (oneWordOccursMultipleTimes) {
+              */
 
-
-              //if (extractions(extractionIndex)(0).mkString(" ").contains("period")){println(extractions(extractionIndex)(0).mkString(" "))}
-              if (!oneWordOccursMultipleTimes) { // TODO: what if true?
-                //if (extractions(extractionIndex)(0).mkString(" ").contains("period")){println(extractions(extractionIndex)(0).mkString(" "))}
                 for (partOfTriple <- extractions(extractionIndex)(lineNumberOfExtraction)) {
 
                   val partOfTripleCleaned = partOfTriple.split(" ").map(token => {
@@ -590,6 +593,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
                   }).mkString(" ")
 
                   val partOfTripleToken: Vector[String] = getPOS(partOfTripleCleaned).map(_._2)
+
                   partOfTripleToken.zipWithIndex.foreach { case (wordInExtracion, wordInExtracionIndex) => { // for every word in one triple part
 
                     var occurenceIndices: String = "wordNotInSentence"
@@ -661,11 +665,12 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
                   }
                   }
                 }
-              }
+              //}
             }
           }
 
         }
+
         rules += rule
         precisions += extractionsPrecisions(extractionIndex)(lineNumberOfExtraction)
 
@@ -700,6 +705,9 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // result: chunksAndExtractions
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    println("")
+    println(" We transform rulesAll: now, the extraction matches the CTS (chunk tag sequence)")
+
     val chunksAndExtractions = Vector.newBuilder[chunkAndExtractions]
     // e.g. "So this is really for accessories and big parts"
     // chunksAndExtractions: Vector(chunkAndExtractions(O$B-NP$B-VP$B-ADVP$B-PP$B-NP$O$B-NP,Vector(1, 2 3 4, 6 7),0))
@@ -707,19 +715,19 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     var wordNotInSentenceCounter = 0
     var counter4 = 0
     for (i <- 0 to rules.size - 1) {
-      println("counter4: " + counter4)
+      if(counter4 % 100 == 0) println("counter4: " + counter4)
       counter4 += 1
       val rulesOfSentence: Vector[String] = rules(i)
       val precisionsOfSentence: Vector[String] = precisions(i)
       val chunksOfSentence: Vector[String] = justChunks(i).toVector
       for (j <- 0 to rulesOfSentence.size - 1) { // für jede extractions Regel
+
         val ruleOfSentence: String = rulesOfSentence(j)
         val precisionOfSentence: String = precisionsOfSentence(j)
         val ruleOfSentenceTriple: Vector[String] = ruleOfSentence.split(";").toVector
           .filter(_ != "") // filter parts of triple which are empty (usually the part at the and 0;1 3 4 5 6 7 8 9;2;)
         val containswordNotInSentence: Boolean = ruleOfSentence.contains("wordNotInSentence")
         if (ruleOfSentenceTriple.size >= 2 && !containswordNotInSentence) { // the triple must have at least 2 parts otherwise its not a valid extraction
-
           var chunksOfSentenceUpdated: Vector[String] = chunksOfSentence
 
           var ruleOfSentenceTripleUpdated: Vector[String] = ruleOfSentenceTriple
@@ -750,6 +758,7 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
               ruleOfSentenceTripleUpdatedPartAsVectorUpdated.mkString(" ")
             })
           }
+
           if (!ruleOfSentenceTripleUpdated.contains("")) {
 
 
@@ -810,13 +819,16 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     // take care of duplicated extraction rules
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    println("take care of duplicated extraction rules")
+
     val chunksAndExtractionsResult: Vector[chunkAndExtractions] = chunksAndExtractions.result()
     var chunksAndExtractionsDisjunct = Vector[chunkAndExtractions]()
     var counter5 = 0
     for (i <- 0 until chunksAndExtractionsResult.size) {
-      println("counter5: " + counter5)
+      if(counter5 % 100 == 0) println("counter5: " + counter5)
       counter5 += 1
-      val chunksAndExtraction = chunkAndExtractions(chunksAndExtractionsResult(i).chunks, chunksAndExtractionsResult(i).extractionTriple, 1, chunksAndExtractionsResult(i).precision)
+      val chunksAndExtraction = chunkAndExtractions(chunksAndExtractionsResult(i).chunks, chunksAndExtractionsResult(i).extractionTriple, 1, chunksAndExtractionsResult(i).precision,i,justSentences(i))
+
       var chunkFoundIndex: Int = -1
       var chunkFoundExtraction = None: Option[chunkAndExtractions]
       for (j <- 0 until chunksAndExtractionsDisjunct.size) {
@@ -831,9 +843,11 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
         case Some(x) => {
           val chunk = x.chunks
           val extractionTriple = x.extractionTriple
+          val id = x.id
           val newCount: Int = chunksAndExtractionsDisjunct(chunkFoundIndex).count + 1
           val newPricsion: String = chunksAndExtractionsDisjunct(chunkFoundIndex).precision + " "+chunksAndExtraction.precision
-          chunksAndExtractionsDisjunct = chunksAndExtractionsDisjunct.updated(chunkFoundIndex, chunkAndExtractions(chunk, extractionTriple, newCount,newPricsion))
+          val newSentences = chunksAndExtraction.sentences + " SPLITHERE "+justSentences(i)
+          chunksAndExtractionsDisjunct = chunksAndExtractionsDisjunct.updated(chunkFoundIndex, chunkAndExtractions(chunk, extractionTriple, newCount,newPricsion,id,newSentences))
         }
       }
     }
@@ -854,21 +868,34 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
     client.execute {
       deleteIndex((ElasticIndexName))
     }
+    client.execute {
+      deleteIndex((ElasticIndexName+"_sentences"))
+    }
+
     println("create Index")
     client.execute {
       createIndex((ElasticIndexName)) mappings (
-          mapping("doc") as(
-              keywordField("chunkPattern"),
-              keywordField("precision"),
-              keywordField("extraction"),
-              intField("count")
-          ))
+        mapping("doc") as(
+          keywordField("chunkPattern"),
+          keywordField("precision"),
+          keywordField("extraction"),
+          intField("count"),
+          intField("id")
+        ))
+    }
+    client.execute {
+      createIndex((ElasticIndexName+"_sentences")) mappings (
+        mapping("doc") as(
+          keywordField("sentences"),
+          intField("id")
+        ))
     }
 
+    println("")
     println("index Extractions")
     var counter6 = 0
     for (i <- 0 to chunksAndExtractions.size - 1) {
-      println("counter6: " + counter6)
+      if(counter6 % 100 == 0) println("counter6: " + counter6)
       counter6 += 1
       val chunkAndExtraction = chunksAndExtractions(i)
 
@@ -877,7 +904,16 @@ class getExtractions(client: HttpClient, chunker: ChunkerME, pipelinePos: Stanfo
           "pattern" -> chunkAndExtraction.chunks,
           "extractions" -> chunkAndExtraction.extractionTriple.mkString(","),
           "count" -> chunkAndExtraction.count,
-        "precision" -> chunkAndExtraction.precision
+          "precision" -> chunkAndExtraction.precision,
+          "id" -> chunkAndExtraction.id,
+          "sentences" -> chunkAndExtraction.sentences
+        )
+      }.await
+
+      client.execute {
+        indexInto((ElasticIndexName+"_sentences") / "doc").fields(
+          "id" -> chunkAndExtraction.id,
+          "sentences" -> chunkAndExtraction.sentences
         )
       }.await
     }
