@@ -69,17 +69,22 @@ object main {
     // parameter
     // - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    val step: String = "1"
+    val step: String = "2"
     // 1 = saveSentences
     // 2 = parseExtractions
     // 3 = test chunking
     // 4 = test openIE
-    val wordsLowerBorder = 3;
+
+    // 1
+    val wordsLowerBorder = 2;
     val wordsUpperBound = 40;
-    val numberOfProducts: Int = 10000
-    //println("We could fetch theoretically "+iterator.length+" product IDs") // 400000
+    val numberOfProducts: Int = 100000 //println("We could fetch theoretically "+iterator.length+" product IDs") // 400000
     val maxRedundantChunkPattern: Int = 3
     val category: String = "tools"
+
+    // 2
+    val fileNameForParsingExtractions = "out4.txt"
+    val ElasticIndexName = "amazon_extractions_4"
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
     // get current file name
@@ -121,7 +126,7 @@ object main {
       println("S I Z E - S E N T E N C E S : " + vectorOfSentences.size)
       // We filter and store sentences, to run an open IE system on in afterwards
       println("We filter and store sentences, to run an open IE system on in afterwards")
-      extractionObject.estimateRecall(reviewName, vectorOfSentences ,maxRedundantChunkPattern ,wordsLowerBorder ,wordsUpperBound)
+      extractionObject.storeSentences(reviewName, vectorOfSentences ,maxRedundantChunkPattern ,wordsLowerBorder ,wordsUpperBound)
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -131,7 +136,7 @@ object main {
     else if (step == "2") {
       // change filename
       // change elasticsearch index at line 643
-      extractionObject.parseExtractions("out3.txt")
+      extractionObject.parseExtractions(fileNameForParsingExtractions,ElasticIndexName)
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - -

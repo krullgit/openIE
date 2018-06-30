@@ -214,6 +214,32 @@ sentWithPos: Vector((DT,The), (NN,color), (NN,green), (VBZ,is), (JJ,cool), (.,.)
 Vector((B-NP,The), (I-NP,color), (I-NP,green), (B-VP,is), (B-ADJP,cool), (O,.))
 // hier funktioniert es ja auch
 
+Weitere chunk errors:
+Sentence: I stack mine
+sentWithPos: Vector((PRP,I), (VBP,stack), (PRP,mine))
+Vector((B-NP,I), (B-VP,stack), (I-VP,mine))
+// mit Punkt am Ende funktioniert es aber:
+Sentence: I stack mine.
+sentWithPos: Vector((PRP,I), (VBP,stack), (PRP,mine), (.,.))
+Vector((B-NP,I), (B-VP,stack), (B-NP,mine), (O,.))
+
+Weitere chunk errors:
+So this is really for accessories and parts
+Vector(O, B-NP, B-VP, B-ADVP, B-PP, B-NP, I-NP, I-NP) // wird leider ein chunk draus gemacht (aus dem NN)
+
+WHY CHUNKIE IS BETTER FOR REVIEWS THAN OIE5.0
+I've been wearing the same 5-pouch leather toolbelt for 32 years
+OIE5.0: 1,00 (I; 've been wearing; 5 - pouch leather toolbelt)
+I cant use
+
+
+Weitere chunk errors:
+// misscreatedExtraction:
+    // That happens in case another chunk eats the chunk which is located in this chunk e.g.:
+    // I was constantly losing my debit card and drivers license
+    // 0,22 (I; was losing my debit card and drivers license; T:constantly)
+    // constantly belongs to the chunk of "was constantly losing" (VP)
+
 The table is green or blue.
 clausIE:
 "The table"	"is"	"green"
