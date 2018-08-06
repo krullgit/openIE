@@ -78,11 +78,11 @@ over 	a 	period 	of	2-3 	hours 	they 	slowly 	equilibrated
 B-PP	B-NP	I-NP	B-PP	B-NP	I-NP	B-NP	B-VP	I-VP
 4	5	6	7	8	9	1	2	3
 
-After 	3 	month 	of 	use 	it 	is 	broken
+After 3 month of use it is broken.
 B-PP	B-NP	I-NP	B-PP	B-NP	B-NP	B-VP	I-VP
 4	5	6	7	8	1	2	3
 
-power has stayed up without recharging  for 4 mos
+power has stayed up without recharging  for 4 mos.
 - OIE5 no extraction
 - me: power , has stayed up  without , recharging  for 4 mos
 
@@ -138,7 +138,7 @@ chunkedSentenceReducedResult: Vector(Because of, President PERSON1, 's tax cuts)
 cie: the Thornton family ,will have ,more money to make ends meet Because of President Trump tax cuts // I DIDN'T find this TODO: another order of sentence parts could result in a match WORKED
 
 Last month, the economy added 164,000 new jobs as the unemployment rate fell to 3.9%, cracking 4% for the first time since 2000.
-clausie: "the unemployment rate"	"fell"	"to 3.9 % cracking 4 % for the first time since 2000" // TODO: impossible for me to achieve this because we cant now that 4% refers to the unemployment rate?
+clausie: "the unemployment rate"	"fell"	"to 3.9 % cracking 4 % for the first time since 2000" // TODO: impossible for me to achieve this because we cant know that 4% refers to the unemployment rate?
 
 We will continue to give these heroes the training, the tools, and the respect they deserve.
 TODO: implement a pattern which deals with the commas
@@ -239,6 +239,66 @@ Weitere chunk errors:
     // I was constantly losing my debit card and drivers license
     // 0,22 (I; was losing my debit card and drivers license; T:constantly)
     // constantly belongs to the chunk of "was constantly losing" (VP)
+
+// `a` ist nicht Teil der Extraction und damit wird sie nicht gefunden, weil `a` das erste Wort ist
+    ERROR: misscreatedExtraction
+    justSentences(i): can and I could only find a 20 inch dia.
+    extractions(i): List(I, can could find, 20 inch dia)
+    ruleOfSentence: 2;0 3 5;7 8 9;
+    ruleOfSentenceTripleUpdated: Vector(2, 0 3, )
+    chunksOfSentence: Vector((MD,can), (CC,and), (B-NP,I), (B-VP,could), (I-VP,only), (I-VP,find), (B-NP,a), (I-NP,20), (I-NP,inch), (I-NP,dia), (.,.))
+    POS: Vector((MD,can), (CC,and), (PRP,I), (MD,could), (RB,only), (VB,find), (DT,a), (CD,20), (NN,inch), (NN,dia), (.,.))
+
+// `thus` ist Teil eines VP chunks und macht daher Probleme weil nicht Teil der extraction
+    ERROR: misscreatedExtraction
+    justSentences(i): I put a washer on the outside on top of this unit and a washer and nut inside the hose and thus bolted the hose to the separator.
+    extractions(i): List(I, bolted, the hose)
+    ruleOfSentence: 0;22;23 24;
+    ruleOfSentenceTripleUpdated: Vector(0, , 15)
+    chunksOfSentence: Vector((B-NP,I), (B-VP,put), (B-NP,a), (I-NP,washer), (B-PP,on), (B-NP,the), (I-NP,outside), (B-PP,on), (B-NP,top), (B-PP,of), (B-NP,this), (I-NP,unit), (CC,and), (B-NP,a), (I-NP,washer), (I-NP,and), (I-NP,nut), (B-PP,inside), (B-NP,the), (I-NP,hose), (CC,and), (B-VP,thus), (I-VP,bolted), (B-NP,the), (I-NP,hose), (B-PP,to), (B-NP,the), (I-NP,separator), (.,.))
+    POS: Vector((PRP,I), (VBD,put), (DT,a), (NN,washer), (IN,on), (DT,the), (JJ,outside), (IN,on), (NN,top), (IN,of), (DT,this), (NN,unit), (CC,and), (DT,a), (NN,washer), (CC,and), (NN,nut), (IN,inside), (DT,the), (NN,hose), (CC,and), (RB,thus), (VBD,bolted), (DT,the), (NN,hose), (TO,to), (DT,the), (NN,separator), (.,.))
+
+//`to purchase` von `had to purchase` // ich finde diese Info ist sowieso unvollständig
+ERROR: misscreatedExtraction
+justSentences(i): I was beginning to think that I had to purchase a new drill, but then found that the battery could be replaced.
+extractions(i): List(I, to purchase, a new drill)
+ruleOfSentence: 0;8 9;10 11 12;
+ruleOfSentenceTripleUpdated: Vector(0, , 5)
+chunksOfSentence: Vector((B-NP,I), (B-VP,was), (I-VP,beginning), (I-VP,to), (I-VP,think), (B-SBAR,that), (B-NP,I), (B-VP,had), (I-VP,to), (I-VP,purchase), (B-NP,a), (I-NP,new), (I-NP,drill), (,,,), (CC,but), (B-ADVP,then), (B-VP,found), (B-SBAR,that), (B-NP,the), (I-NP,battery), (B-VP,could), (I-VP,be), (I-VP,replaced), (.,.))
+POS: Vector((PRP,I), (VBD,was), (VBG,beginning), (TO,to), (VB,think), (IN,that), (PRP,I), (VBD,had), (TO,to), (VB,purchase), (DT,a), (JJ,new), (NN,drill), (,,,), (CC,but), (RB,then), (VBD,found), (IN,that), (DT,the), (NN,battery), (MD,could), (VB,be), (VBN,replaced), (.,.))
+
+// `about` // info wäre besser wenn es mit drin wäre
+ERROR: misscreatedExtraction
+justSentences(i): Battery life pretty good - however, the last two batteries only lasted about four to five years.
+extractions(i): List(the last two batteries, only lasted about, four to five years)
+ruleOfSentence: 7 8 9 10;11 12 13;14 15 16 17;
+ruleOfSentenceTripleUpdated: Vector(5, 6 7 8, )
+chunksOfSentence: Vector((B-NP,Battery), (I-NP,life), (B-ADJP,pretty), (I-ADJP,good), (:,-), (B-ADVP,however), (,,,), (B-NP,the), (I-NP,last), (I-NP,two), (I-NP,batteries), (B-ADVP,only), (B-VP,lasted), (B-NP,about), (I-NP,four), (I-NP,to), (I-NP,five), (I-NP,years), (.,.))
+POS: Vector((NN,Battery), (NN,life), (RB,pretty), (JJ,good), (:,-), (RB,however), (,,,), (DT,the), (JJ,last), (CD,two), (NNS,batteries), (RB,only), (VBD,lasted), (IN,about), (CD,four), (TO,to), (CD,five), (NNS,years), (.,.))
+
+// hier sieht man, dass Fehler in der Extraction durch chunking Error hervorgerufen werden und nicht durch die Logik
+// "The slide out ends" sollte eigentlich ein chunk sein
+Edison Software told the newspaper it had reviewed the emails of hundreds of users to build a new software feature.
+I cut 10' long boards which was no problem with the slide out ends to help support the wood.
+[I]			[cut]	[10 ' long boards]	[which]	[was]		[no problem]	[with]	[the slide]	[out]	[ends]	[to help support]	[the wood]
+[Edison Software]	[told]	[the newspaper]		[it]	[had reviewed]	[the emails]	[of]	[hundreds]	[of]	[users]	[to build]		[a new software feature]
+
+
+// Fehler:"dive" fälschlicherweise als noun
+// Auswirkungen auf extractor
+Sentence: They must either be taught to dive or wait for the water to recede.
+sentWithPos: Vector((PRP,They), (MD,must), (RB,either), (VB,be), (VBN,taught), (TO,to), (NN,dive), (CC,or), (VB,wait), (IN,for), (DT,the), (NN,water), (TO,to), (VB,recede), (.,.))
+Vector((B-NP,They), (B-VP,must), (I-VP,either), (I-VP,be), (I-VP,taught), (B-PP,to), (B-NP,dive), (CC,or), (B-VP,wait), (B-PP,for), (B-NP,the), (I-NP,water), (B-VP,to), (I-VP,recede), (.,.))
+chunkedTagsReduced: B-NP$B-VP$B-PP$B-NP$CC$B-VP$B-PP$B-NP$B-VP$.
+[They][must either be taught][to][dive][or][wait][for][the water][to recede]
+Sentence: I work on elettronics and got tired of the cheep driver tips wearing or bending.
+sentWithPos: Vector((PRP,I), (VBP,work), (IN,on), (NNS,elettronics), (CC,and), (VBD,got), (VBN,tired), (IN,of), (DT,the), (NN,cheep), (NN,driver), (NNS,tips), (VBG,wearing), (CC,or), (VBG,bending), (.,.))
+Vector((B-NP,I), (B-VP,work), (B-PP,on), (B-NP,elettronics), (CC,and), (B-VP,got), (I-VP,tired), (B-PP,of), (B-NP,the), (I-NP,cheep), (I-NP,driver), (I-NP,tips), (B-VP,wearing), (I-VP,or), (I-VP,bending), (.,.))
+chunkedTagsReduced: B-NP$B-VP$B-PP$B-NP$CC$B-VP$B-PP$B-NP$B-VP$.
+[I][work][on][elettronics][and][got tired][of][the cheep driver tips][wearing or bending]
+-> mit den richtigen POS tags würde es aber passen // A teflon-coated brass plug is provided to insert into the gauge port not used.
+
+
 
 The table is green or blue.
 clausIE:

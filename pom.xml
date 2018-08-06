@@ -11,8 +11,8 @@
 
     <properties>
         <scalaVersion>2.12.2</scalaVersion>
-        <elastic4sVersion>5.5.4</elastic4sVersion>
-        <corenlp.version>3.7.0</corenlp.version>
+        <elastic4sVersion>6.3.3</elastic4sVersion>
+        <corenlp.version>3.9.1</corenlp.version> <!-- // 3.7.0 läuft-->
         <guava.version>21.0-rc2</guava.version>
         <avro.version>1.5.3</avro.version>
     </properties>

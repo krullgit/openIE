@@ -45,7 +45,7 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-scala_2.12:2.9.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-paranamer:2.9.2" level="project" />
     <orderEntry type="library" name="Maven: com.thoughtworks.paranamer:paranamer:2.8" level="project" />
-    <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:3.7.0" level="project" />
+    <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:3.9.1" level="project" />
     <orderEntry type="library" name="Maven: com.apple:AppleJavaExtensions:1.4" level="project" />
     <orderEntry type="library" name="Maven: de.jollyday:jollyday:0.4.9" level="project" />
     <orderEntry type="library" name="Maven: javax.xml.bind:jaxb-api:2.2.7" level="project" />
@@ -62,8 +62,8 @@
     <orderEntry type="library" name="Maven: xalan:xalan:2.7.0" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.efficient-java-matrix-library:ejml:0.23" level="project" />
     <orderEntry type="library" name="Maven: org.glassfish:javax.json:1.0.4" level="project" />
-    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:2.6.1" level="project" />
-    <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:models:3.7.0" level="project" />
+    <orderEntry type="library" name="Maven: com.google.protobuf:protobuf-java:3.2.0" level="project" />
+    <orderEntry type="library" name="Maven: edu.stanford.nlp:stanford-corenlp:models:3.9.1" level="project" />
     <orderEntry type="library" name="Maven: com.sksamuel.avro4s:avro4s-core_2.12:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.sksamuel.avro4s:avro4s-macros_2.12:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: com.chuusai:shapeless_2.12:2.3.2" level="project" />

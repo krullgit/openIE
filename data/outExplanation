@@ -11,3 +11,9 @@ Sätze nicht gesplittet bei "but","and" und ","
 0 bis 12 Wörter
 nur Sätze die "but","and" und "," enthalten
 
+out4:
+counter4: 419000
+misscreatedExtraction: If a chunk in the extraction rules do not match any chunk in the sentence (usually due to chunks errors: NNs CC NNS(I can't fix  it))
+misscreatedExtraction: 105138
+wordNotInSentenceCounter: If a word in the extraction is not found in the sentence (usually commas I'LL FIX IT)
+wordNotInSentenceCounter: 33157
